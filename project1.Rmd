@@ -1,0 +1,94 @@
+---
+title: "Regression Models Course Project"
+author: "Seongsu Kim"
+date: "August 18, 2015"
+output: pdf_document
+---
+
+## Executive Summary
+* You work for Motor Trend, a magazine about the automobile industry. Looking at a data set of a collection of cars, they are interested in exploring the relationship between a set of variables and miles per gallon (MPG) (outcome). They are particularly interested in the following two questions:
+    + "Is an automatic or manual transmission better for MPG"
+    + "Quantify the MPG difference between automatic and manual transmissions"
+    
+
+## Mission
+Take the mtcars data set and write up an analysis to answer their question using regression models and exploratory data analyses.
+
+* The report must be:
+    + Written as a PDF printout of a compiled (using knitr) R markdown document.
+    + Brief. Roughly the equivalent of 2 pages or less for the main text. 
+    + Include a first paragraph executive summary.
+    
+
+## Exploratory Data Analysis
+### 1. To begin with, load the data.
+
+```{r}
+data(mtcars)
+```
+
+### 2. Here are the details of each column
+
+[, 1]	 mpg	 Miles/(US) gallon
+
+[, 2]	 cyl	 Number of cylinders
+
+[, 3]	 disp	 Displacement (cu.in.)
+
+[, 4]	 hp	 Gross horsepower
+
+[, 5]	 drat	 Rear axle ratio
+
+[, 6]	 wt	 Weight (lb/1000)
+
+[, 7]	 qsec	 1/4 mile time
+
+[, 8]	 vs	 V/S
+
+[, 9]	 am	 Transmission (0 = automatic, 1 = manual)
+
+[,10]	 gear	 Number of forward gears
+
+[,11]	 carb	 Number of carburetors
+
+### 3. By using t-test, we can see the mpg diffence between a manual transmission and an auto transmission.
+```{r}
+t.test(mpg ~ am, data = mtcars)
+```
+
+According to the result shown above,a mean mpg in group 0 which is the group of an automatic transmission is 17.147.
+On the other hand, the mean mpg in group 1 which is the group of an manual transmission is 24.39231.
+However, we need some more analysis to confirm the result.
+
+```{r, fig.width = 5, fig.height = 4}
+mtcars$am[mtcars$am=="0"]<-"Automatic"
+mtcars$am[mtcars$am=="1"]<-"Manual"
+boxplot(mpg ~ am, data = mtcars, ylab = "mpg", xlab = "Automatic vs. Manual")
+```
+
+
+
+### 4. Multiple Linear Regression & Residual Plot
+```{r}
+summary(step(lm(formula = mpg ~ am + qsec+wt, data = mtcars),trace=0,steps=100000))
+```
+The result above shows that Multiple R-squared is about 85%. It means mpg has 85% of variation.
+Also, the coefficient is 2.94. The coefficient in this result means the average of mpg of a manual transmission is 
+2.94 higher than the automatic transmission. However, this result doesn't show the relationship with the 
+one we got on the second step. The one we got before was 7 which is more than twice bigger than the 2.94.
+Also, we can't find heteroskedastic relationship from the residual plot. 
+Therefore, I would conclude that it is not possible to determine the better type of transmission for mpg from the data given.  
+
+
+-----
+
+\newpage
+
+
+# Appendix
+
+
+## Residual plot
+```{r, fig.width = 3, fig.height = 3,out.extra='angle=90'}
+plot(lm(mpg~am + wt + qsec, data = mtcars))
+```
